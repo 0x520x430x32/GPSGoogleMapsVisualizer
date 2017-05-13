@@ -37,6 +37,8 @@
             function requestUpdate(){
 
                 console.log("[Client] Requesting new data..");
+
+                // Send data request
                 socket.emit('requestData', '');
                 gpsData = [];
 
