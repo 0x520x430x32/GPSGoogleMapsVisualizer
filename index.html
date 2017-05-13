@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>GPSGoogleMapsVisualizer</title>
+        <meta name="viewport" content="initial-scale=1.0">
+        <meta charset="utf-8">
+        <style>
+            #map {
+                height: 100%;
+            }
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA19WfkUOpYSSZlJw-VaJmVqEev4aQQWVQ"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+        <script>
+
+            var socket = io();
+            var gpsData = []; // {lat: 37.772, lng: -122.214}
+            var flightPath;
+
+            var map = new google.maps.Map(document.getElementById('map'), {
+
+                zoom: 3,
+                center: {lat: 37.772, lng: -122.214},
+                mapTypeId: 'terrain'
+
+            });
+
+            function requestUpdate(){
+
+                console.log("[Client] Requesting new data..");
+                socket.emit('requestData', '');
+                gpsData = [];
+
+            }
+            setInterval(requestUpdate, 5000);
+
+            socket.on('message', function(msg){
+
+                console.log(msg);
+
+                if ( msg.lat == null && msg.lng == null ) {
+
+                    flightPath = new google.maps.Polyline({
+                        path: gpsData,
+                        geodesic: true,
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 1.0,
+                        strokeWeight: 3
+                    });
+
+                    flightPath.setMap(map);
+
+                } else {
+
+                    gpsData.push(msg);
+
+                }
+
+            });
+
+        </script>
+    </body>
+</html>
